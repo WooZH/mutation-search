@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>变异搜索</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, 'PingFang SC', sans-serif;
+    background: #0f0f13;
+    color: #e8e6ff;
+    min-height: 100vh;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #0f0f13;
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid #1e1e2e;
+  }
+
+  h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #c4b5fd;
+    margin-bottom: 10px;
+  }
+
+  .search-box {
+    position: relative;
+  }
+
+  input[type="search"] {
+    width: 100%;
+    background: #1a1a27;
+    border: 1px solid #2e2e45;
+    border-radius: 12px;
+    padding: 12px 16px 12px 42px;
+    font-size: 16px;
+    color: #e8e6ff;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input[type="search"]:focus {
+    border-color: #7c3aed;
+    background: #1e1a30;
+  }
+
+  input[type="search"]::placeholder { color: #4a4a6a; }
+  input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #4a4a6a;
+    font-size: 18px;
+    pointer-events: none;
+  }
+
+  .stats {
+    padding: 10px 16px 6px;
+    font-size: 12px;
+    color: #4a4a6a;
+    letter-spacing: 0.04em;
+  }
+
+  .list {
+    padding: 0 12px 80px;
+  }
+
+  .item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 14px;
+    margin-bottom: 6px;
+    background: #16161f;
+    border: 1px solid #1e1e2e;
+    border-radius: 12px;
+    transition: background 0.15s;
+  }
+
+  .item:active { background: #1e1a30; }
+
+  .item-left { display: flex; align-items: center; gap: 10px; }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .name {
+    font-size: 15px;
+    font-weight: 500;
+    color: #e8e6ff;
+  }
+
+  .mult {
+    font-size: 15px;
+    font-weight: 700;
+    color: #a78bfa;
+    letter-spacing: -0.02em;
+  }
+
+  .badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+    margin-left: 8px;
+  }
+
+  .t-legend { background: #3b1764; color: #d8b4fe; }
+  .t-rare    { background: #1e3a5f; color: #93c5fd; }
+  .t-elite   { background: #14532d; color: #86efac; }
+  .t-normal  { background: #1c1c2e; color: #6b7280; }
+
+  .dot-legend { background: #a855f7; }
+  .dot-rare   { background: #3b82f6; }
+  .dot-elite  { background: #22c55e; }
+  .dot-normal { background: #374151; }
+
+  .empty {
+    text-align: center;
+    padding: 60px 0;
+    color: #4a4a6a;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>✦ 变异搜索</h1>
+  <div class="search-box">
+    <span class="search-icon">⌕</span>
+    <input type="search" id="q" placeholder="输入变异名称…" autocomplete="off" autofocus>
+  </div>
+</header>
+
+<div class="stats" id="stats"></div>
+<div class="list" id="list"></div>
+
+<script>
+const data=[["Goldsparkle",500],["Astral",365],["Stormbound",270],["Cosmic",240],["Abyssal",240],["Ascendedchakra",230],["Contagion",205],["Harmonisedfoxfire",190],["Stormcharged",180],["Infernal",180],["Mindbender",175],["Grim",170],["Biohazard",157],["Dawnbound",150],["Voidtouched",135],["Extraterrestrial",130],["Disco",125],["Meteoric",125],["Celestial",120],["Galactic",120],["Touchdown",105],["Plagued",102],["Shocked",100],["Alienlike",100],["Paradisal",100],["Brainrot",100],["Beanbound",100],["Maelstrom",100],["Slashbound",95],["Blackout",95],["Fractured",92],["Aurora",90],["Foxfire",90],["Corruptfoxfire",90],["Sundried",85],["Glitched",85],["Riptide",80],["Graceful",77],["Infected",75],["Warped",75],["Azure",75],["Terran",75],["Friendbound",70],["Shadowbound",70],["Leeched",70],["Affluent",70],["Smoldering",66],["Radioactive",55],["Blazing",52],["Rainbow",50],["Ancientamber",50],["Blitzshock",50],["Sliced",50],["Fortune",50],["Lightcycle",50],["Cyclonic",50],["Enchanted",50],["Luminous",50],["Desolate",50],["Stampede",50],["Monsoon",50],["Whalebound",50],["Heartbound",50],["Blossoming",50],["Diamond",50],["Junkshock",45],["Batty",45],["Subzero",40],["Corrosive",40],["Severed",40],["Blizzard",40],["Gourmet",37],["Supernatural",37],["Harmonisedchakra",35],["Enlightened",35],["Honeygem",33],["Ceramic",32],["Sunscorched",32],["Gloom",30],["Oilboil",30],["Umbral",30],["Glossy",30],["Fierywork",30],["Firework",26],["Zombified",25],["Jellygem",25],["Molten",25],["Flaming",25],["Ghostly",25],["Moonbled",25],["Volcanic",25],["Mirage",25],["Glacial",25],["Crystalized",25],["Alienated",25],["Gale",25],["Festive",24],["Gold",20],["Oldamber",20],["Tranquil",20],["Corrupt",20],["Eclipsed",20],["Withered",20],["Sizzled",18],["Mineral",18],["Chakra",15],["Corruptchakra",15],["Jackpot",15],["Spaghetti",15],["Acidic",15],["Oil",15],["Boil",15],["Gnomed",15],["Toxic",15],["Gilded",15],["Clockwork",15],["Tempestous",12],["Arctic",12],["Frozen",10],["Cooked",10],["Amber",10],["Wilted",10],["Ornamented",10],["Cute",10],["Fried",8],["Static",8],["Rot",8],["Bloom",8],["Spooky",8],["Blight",8],["Pestilent",8],["Necrotic",8],["Webbed",8],["Brewed",7],["Arid",6],["Charcoal",6],["Tempered",6],["Eggnog",6],["Whimsical",6],["Haze",6],["Silver",5],["Plasma",5],["Honeyglazed",5],["Heavenly",5],["Twisted",5],["Cloudtouched",5],["Drenched",5],["Clay",5],["Wildfast",5],["Geode",5],["Snowtouched",5],["Opulent",5],["Bloodlit",4],["Burnt",4],["Verdant",4],["Cracked",4],["Fall",4],["Wiltproof",4],["Nocturnal",4],["Twilight",4],["Peppermint",4],["Ash",4],["Gummy",4],["Pollinated",3],["Sandy",3],["Sauce",3],["Pasta",3],["Meatball",3],["Aromatic",3],["Vamp",3],["Lush",3],["Moist",3],["Coin",3],["Sleepy",3],["Luck",3],["Heartstuck",3],["Wet",2],["Chilled",2],["Choc",2],["Moonlit",2],["Windstruck",2],["Glimmering",2],["Snowy",2],["Fiery",2]];
+
+function tier(m){
+  if(m>=200)return['t-legend','dot-legend','传奇'];
+  if(m>=100)return['t-rare','dot-rare','稀有'];
+  if(m>=30)return['t-elite','dot-elite','精英'];
+  return['t-normal','dot-normal','普通'];
+}
+
+function render(list){
+  const el=document.getElementById('list');
+  const st=document.getElementById('stats');
+  st.textContent=list.length===data.length?`全部 ${data.length} 种变异`:`找到 ${list.length} 种`;
+  if(!list.length){el.innerHTML='<div class="empty">没有找到匹配的变异</div>';return;}
+  el.innerHTML=list.map(([n,m])=>{
+    const[tc,dc,label]=tier(m);
+    return`<div class="item"><div class="item-left"><span class="dot ${dc}"></span><span class="name">${n}</span><span class="badge ${tc}">${label}</span></div><span class="mult">${m}x</span></div>`;
+  }).join('');
+}
+
+render(data);
+
+document.getElementById('q').addEventListener('input',function(){
+  const v=this.value.trim().toLowerCase();
+  render(v?data.filter(([n])=>n.toLowerCase().includes(v)):data);
+});
+</script>
+</body>
+</html>
