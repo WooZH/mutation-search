@@ -5,181 +5,302 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>变异搜索</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: -apple-system, 'PingFang SC', sans-serif;
-    background: #0f0f13;
-    color: #e8e6ff;
-    min-height: 100vh;
-  }
-
-  header {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: #0f0f13;
-    padding: 16px 16px 12px;
-    border-bottom: 1px solid #1e1e2e;
-  }
-
-  h1 {
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    color: #c4b5fd;
-    margin-bottom: 10px;
-  }
-
-  .search-box {
-    position: relative;
-  }
-
-  input[type="search"] {
-    width: 100%;
-    background: #1a1a27;
-    border: 1px solid #2e2e45;
-    border-radius: 12px;
-    padding: 12px 16px 12px 42px;
-    font-size: 16px;
-    color: #e8e6ff;
-    outline: none;
-    -webkit-appearance: none;
-    appearance: none;
-  }
-
-  input[type="search"]:focus {
-    border-color: #7c3aed;
-    background: #1e1a30;
-  }
-
-  input[type="search"]::placeholder { color: #4a4a6a; }
-  input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
-
-  .search-icon {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #4a4a6a;
-    font-size: 18px;
-    pointer-events: none;
-  }
-
-  .stats {
-    padding: 10px 16px 6px;
-    font-size: 12px;
-    color: #4a4a6a;
-    letter-spacing: 0.04em;
-  }
-
-  .list {
-    padding: 0 12px 80px;
-  }
-
-  .item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 13px 14px;
-    margin-bottom: 6px;
-    background: #16161f;
-    border: 1px solid #1e1e2e;
-    border-radius: 12px;
-    transition: background 0.15s;
-  }
-
-  .item:active { background: #1e1a30; }
-
-  .item-left { display: flex; align-items: center; gap: 10px; }
-
-  .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .name {
-    font-size: 15px;
-    font-weight: 500;
-    color: #e8e6ff;
-  }
-
-  .mult {
-    font-size: 15px;
-    font-weight: 700;
-    color: #a78bfa;
-    letter-spacing: -0.02em;
-  }
-
-  .badge {
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 8px;
-    border-radius: 999px;
-    letter-spacing: 0.04em;
-    margin-left: 8px;
-  }
-
-  .t-legend { background: #3b1764; color: #d8b4fe; }
-  .t-rare    { background: #1e3a5f; color: #93c5fd; }
-  .t-elite   { background: #14532d; color: #86efac; }
-  .t-normal  { background: #1c1c2e; color: #6b7280; }
-
-  .dot-legend { background: #a855f7; }
-  .dot-rare   { background: #3b82f6; }
-  .dot-elite  { background: #22c55e; }
-  .dot-normal { background: #374151; }
-
-  .empty {
-    text-align: center;
-    padding: 60px 0;
-    color: #4a4a6a;
-    font-size: 14px;
-  }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'PingFang SC',sans-serif;background:#FDF8F2;color:#3D2B1F;min-height:100vh}
+header{position:sticky;top:0;z-index:10;background:#FDF8F2;padding:14px 14px 10px;border-bottom:1px solid #EAD9C8}
+h1{font-size:17px;font-weight:600;color:#7A4828;margin-bottom:10px}
+.search-box{position:relative;margin-bottom:10px}
+input{width:100%;background:#FFF8F0;border:1.5px solid #E2C9B0;border-radius:12px;padding:11px 16px 11px 40px;font-size:16px;color:#3D2B1F;outline:none;-webkit-appearance:none;appearance:none}
+input:focus{border-color:#C07840;background:#FFFCF8}
+input::placeholder{color:#B89880}
+.ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#C07840;font-size:17px;pointer-events:none}
+.clear-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#B89880;font-size:18px;cursor:pointer;padding:0;line-height:1;display:none;width:auto}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap}
+.fbtn{background:#FFF8F0;border:1.5px solid #E2C9B0;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:500;color:#7A4828;cursor:pointer}
+.fbtn.on{background:#C07840;border-color:#C07840;color:#FFF8F0}
+.stats{padding:8px 14px 4px;font-size:12px;color:#B89880}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:0 12px 60px}
+.card{background:#FFFCF8;border:1px solid #EAD9C8;border-radius:12px;padding:10px 12px}
+.card:active{background:#FFF3E6}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px}
+.names{flex:1;min-width:0}
+.en{font-size:13px;font-weight:500;color:#3D2B1F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cn{font-size:11px;color:#9C7A60;margin-top:1px}
+.mult{font-size:16px;font-weight:600;color:#C07840;margin-left:6px;white-space:nowrap}
+.card-bot{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:999px;white-space:nowrap}
+.tl{background:#F5E6D0;color:#7A4828}
+.tr{background:#FAD9B5;color:#854F0B}
+.te{background:#F0EAD6;color:#6B5230}
+.tn{background:#F5F0E8;color:#9C8570}
+.stag{font-size:10px;padding:3px 7px;border-radius:8px;background:#F5F0E8;color:#7A6050;line-height:1.5;display:inline-block}
+.stag-en{display:block;color:#B89880;font-size:9px}
+.empty{text-align:center;padding:50px 0;color:#B89880;font-size:14px;grid-column:1/-1}
 </style>
 </head>
 <body>
-
 <header>
   <h1>✦ 变异搜索</h1>
   <div class="search-box">
-    <span class="search-icon">⌕</span>
-    <input type="search" id="q" placeholder="输入变异名称…" autocomplete="off" autofocus>
+    <span class="ico">⌕</span>
+    <input type="text" id="q" placeholder="搜索英文、中文或来源…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <button class="clear-btn" id="clear-btn" onclick="clearSearch()">×</button>
   </div>
+  <div class="filter-row" id="filters"></div>
 </header>
-
 <div class="stats" id="stats"></div>
-<div class="list" id="list"></div>
-
+<div class="grid" id="grid"></div>
 <script>
-const data=[["Goldsparkle",500],["Astral",365],["Stormbound",270],["Cosmic",240],["Abyssal",240],["Ascendedchakra",230],["Contagion",205],["Harmonisedfoxfire",190],["Stormcharged",180],["Infernal",180],["Mindbender",175],["Grim",170],["Biohazard",157],["Dawnbound",150],["Voidtouched",135],["Extraterrestrial",130],["Disco",125],["Meteoric",125],["Celestial",120],["Galactic",120],["Touchdown",105],["Plagued",102],["Shocked",100],["Alienlike",100],["Paradisal",100],["Brainrot",100],["Beanbound",100],["Maelstrom",100],["Slashbound",95],["Blackout",95],["Fractured",92],["Aurora",90],["Foxfire",90],["Corruptfoxfire",90],["Sundried",85],["Glitched",85],["Riptide",80],["Graceful",77],["Infected",75],["Warped",75],["Azure",75],["Terran",75],["Friendbound",70],["Shadowbound",70],["Leeched",70],["Affluent",70],["Smoldering",66],["Radioactive",55],["Blazing",52],["Rainbow",50],["Ancientamber",50],["Blitzshock",50],["Sliced",50],["Fortune",50],["Lightcycle",50],["Cyclonic",50],["Enchanted",50],["Luminous",50],["Desolate",50],["Stampede",50],["Monsoon",50],["Whalebound",50],["Heartbound",50],["Blossoming",50],["Diamond",50],["Junkshock",45],["Batty",45],["Subzero",40],["Corrosive",40],["Severed",40],["Blizzard",40],["Gourmet",37],["Supernatural",37],["Harmonisedchakra",35],["Enlightened",35],["Honeygem",33],["Ceramic",32],["Sunscorched",32],["Gloom",30],["Oilboil",30],["Umbral",30],["Glossy",30],["Fierywork",30],["Firework",26],["Zombified",25],["Jellygem",25],["Molten",25],["Flaming",25],["Ghostly",25],["Moonbled",25],["Volcanic",25],["Mirage",25],["Glacial",25],["Crystalized",25],["Alienated",25],["Gale",25],["Festive",24],["Gold",20],["Oldamber",20],["Tranquil",20],["Corrupt",20],["Eclipsed",20],["Withered",20],["Sizzled",18],["Mineral",18],["Chakra",15],["Corruptchakra",15],["Jackpot",15],["Spaghetti",15],["Acidic",15],["Oil",15],["Boil",15],["Gnomed",15],["Toxic",15],["Gilded",15],["Clockwork",15],["Tempestous",12],["Arctic",12],["Frozen",10],["Cooked",10],["Amber",10],["Wilted",10],["Ornamented",10],["Cute",10],["Fried",8],["Static",8],["Rot",8],["Bloom",8],["Spooky",8],["Blight",8],["Pestilent",8],["Necrotic",8],["Webbed",8],["Brewed",7],["Arid",6],["Charcoal",6],["Tempered",6],["Eggnog",6],["Whimsical",6],["Haze",6],["Silver",5],["Plasma",5],["Honeyglazed",5],["Heavenly",5],["Twisted",5],["Cloudtouched",5],["Drenched",5],["Clay",5],["Wildfast",5],["Geode",5],["Snowtouched",5],["Opulent",5],["Bloodlit",4],["Burnt",4],["Verdant",4],["Cracked",4],["Fall",4],["Wiltproof",4],["Nocturnal",4],["Twilight",4],["Peppermint",4],["Ash",4],["Gummy",4],["Pollinated",3],["Sandy",3],["Sauce",3],["Pasta",3],["Meatball",3],["Aromatic",3],["Vamp",3],["Lush",3],["Moist",3],["Coin",3],["Sleepy",3],["Luck",3],["Heartstuck",3],["Wet",2],["Chilled",2],["Choc",2],["Moonlit",2],["Windstruck",2],["Glimmering",2],["Snowy",2],["Fiery",2]];
+const data=[
+["Goldsparkle",500,"金色闪耀",[["金雀宠物","Gold Finch pet"]]],
+["Astral",365,"星界",[["宇宙+银河合并","Cosmic+Galactic merge"]]],
+["Stormbound",270,"风暴缚链",[]],
+["Cosmic",240,"宇宙",[["天体+极光合并","Celestial+Aurora merge"]]],
+["Abyssal",240,"深渊",[["日食+虚空侵蚀合并","Eclipsed+Voidtouched merge"]]],
+["Ascendedchakra",230,"升华脉轮",[["和谐脉轮+和谐狐火合并","HarmonisedChakra+HarmonisedFoxfire merge"]]],
+["Contagion",205,"瘟疫蔓延",[]],
+["Harmonisedfoxfire",190,"和谐狐火",[["狐火脉轮+腐化狐火脉轮合并","FoxfireChakra+CorruptFoxfireChakra merge"]]],
+["Stormcharged",180,"风暴充能",[["静电+雷击+暴风合并","Static+Shocked+Tempestuous merge"]]],
+["Infernal",180,"地狱烈焰",[["陨石+烈焰合并","Meteoric+Blazing merge"]]],
+["Mindbender",175,"意识扭曲",[]],
+["Grim",170,"死神",[]],
+["Biohazard",157,"生化危机",[["放射性+鼠疫合并","Radioactive+Plagued merge"]]],
+["Dawnbound",150,"黎明缚链",[["太阳神事件+4人持向日葵","Sun God event, 4 players w/ Sunflower"],["进化宠物效果","Ascended pet"]]],
+["Voidtouched",135,"虚空侵蚀",[["黑洞天气","Black Hole weather"],["太空松鼠宠物","Space Squirrel pet"]]],
+["Extraterrestrial",130,"外星生命",[["外星入侵事件","Alien Invasion event"]]],
+["Disco",125,"迪斯科",[["Disco/DJ Sam/怪物舞会活动","Disco/DJ Sam/Monster Mash event"],["迪斯科蜜蜂宠物","Disco Bee pet"],["Disco喷雾","Mutation Spray Disco"]]],
+["Meteoric",125,"陨石",[["陨石活动被陨石击中","Struck by meteor during Meteor Strike"],["龙虾忒密多宠物","Lobster Thermidor pet"]]],
+["Celestial",120,"天体",[["陨石雨击中作物","Struck by meteor"],["水晶光束事件","Crystal Beam event"]]],
+["Galactic",120,"银河",[["Route Runner+冰霜之王事件","Route Runner+Frost King event"]]],
+["Touchdown",105,"着陆",[["Post Dunk活动","Post Dunk event"]]],
+["Plagued",102,"鼠疫",[]],
+["Shocked",100,"雷击",[["雷暴/Jandel/火烈鸟风暴闪电击中","Lightning in Thunderstorm/Flamingo Storm"],["水晶光束","Crystal Beam"],["Shocked喷雾","Mutation Spray Shocked"]]],
+["Alienlike",100,"异形",[["外星入侵事件","Alien Invasion event"]]],
+["Paradisal",100,"乐园",[["翠绿+烈日晒干合并","Verdant+Sundried merge"],["太阳耀斑天气","Solar Flare weather"]]],
+["Brainrot",100,"腐脑",[["腐脑传送门事件","Brainrot Portal event"],["柠檬狮子宠物","Lemon Lion pet"]]],
+["Beanbound",100,"豆缚",[["豆光环+4人持豆茎","Bean Aura event, 4 players w/ Beanstalk"]]],
+["Maelstrom",100,"大漩涡",[["暴风+旋风合并","Tempestuous+Cyclonic merge"]]],
+["Slashbound",95,"斩缚",[["切片+斩断合并","Sliced+Severed merge"]]],
+["Blackout",95,"全域黑暗",[["死神收割者事件","Grim Reaper event"]]],
+["Fractured",92,"破碎",[]],
+["Aurora",90,"极光",[["极光极地事件","Aurora Borealis event"],["水晶光束事件","Crystal Beam event"]]],
+["Foxfire",90,"狐火",[["九尾狐宠物","Kitsune pet"]]],
+["Corruptfoxfire",90,"腐化狐火",[["腐化九尾狐宠物","Corrupted Kitsune pet"]]],
+["Sundried",85,"烈日晒干",[["热浪天气","Heatwave weather"],["太阳耀斑天气","Solar Flare weather"]]],
+["Glitched",85,"故障",[["Dissonant事件","Dissonant event"]]],
+["Riptide",80,"激流",[]],
+["Graceful",77,"优雅",[["天鹅宠物","Swan pet"]]],
+["Infected",75,"感染",[["Jandel僵尸事件","Jandel Zombie event"]]],
+["Warped",75,"扭曲空间",[["腐脑踩踏事件","Brainrot Stampede event"],["苹果瞪羚收割糖苹果","Apple Gazelle harvesting Sugar Apples"]]],
+["Azure",75,"天青",[]],
+["Terran",75,"大地",[]],
+["Friendbound",70,"友情缚链",[["友谊盆栽满级+5人同服","Friendship Pot fully grown, 5 friends in server"]]],
+["Shadowbound",70,"暗影缚链",[]],
+["Leeched",70,"汲取",[["Woody宠物","Woody pet"]]],
+["Affluent",70,"富饶",[]],
+["Smoldering",66,"阴燃",[]],
+["Radioactive",55,"放射性",[["放射性胡萝卜事件","Radioactive Carrot event"]]],
+["Blazing",52,"烈焰",[["熔岩+燃烧合并","Molten+Flaming merge"]]],
+["Rainbow",50,"彩虹",[["0.1%随机概率","0.1% random chance"],["蝴蝶宠物(5+环境变异)","Butterfly pet w/ 5+ mutations"],["彩虹肥料","Rainbow Fertilizer"]]],
+["Ancientamber",50,"远古琥珀",[["古老琥珀放置约2天进化","OldAmber aged ~2 days"]]],
+["Blitzshock",50,"闪电冲击",[["闪电风暴活动","Lightning Storm event"]]],
+["Sliced",50,"切片",[["厨师Jandel活动","Chef Jandel event"]]],
+["Fortune",50,"幸运",[["金鹅宠物","Golden Goose pet"],["出售金蛋","Golden Egg (sell)"]]],
+["Lightcycle",50,"光循环",[["红绿灯事件","Stoplight event"]]],
+["Cyclonic",50,"旋风",[["格里芬宠物","Griffin pet"]]],
+["Enchanted",50,"魔法附魔",[]],
+["Luminous",50,"光辉",[["Luminous喷雾","Mutation Spray Luminous"],["发光精灵宠物","Luminous Sprite pet"],["发光魔杖","Luminous Wand"]]],
+["Desolate",50,"荒芜",[]],
+["Stampede",50,"兽群踩踏",[["狩猎场踩踏事件","Safari Stampede event"]]],
+["Monsoon",50,"季风",[["狩猎场风暴+河马宠物","Safari Storm / Hippo pet"]]],
+["Whalebound",50,"鲸缚",[]],
+["Heartbound",50,"心缚",[]],
+["Blossoming",50,"盛开",[]],
+["Diamond",50,"钻石",[]],
+["Junkshock",45,"垃圾冲击",[["Junkbot Raid事件","Junkbot Raid event"]]],
+["Batty",45,"蝙蝠",[]],
+["Subzero",40,"零下冰封",[["闪电风暴活动","Lightning Storm event"]]],
+["Corrosive",40,"腐蚀",[["酸性+剧毒合并","Acidic+Toxic merge"]]],
+["Severed",40,"斩断",[["祭品事件","Offering event"]]],
+["Blizzard",40,"暴风雪",[]],
+["Gourmet",37,"美食",[]],
+["Supernatural",37,"超自然",[]],
+["Harmonisedchakra",35,"和谐脉轮",[["脉轮+腐化脉轮合并","Chakra+CorruptChakra merge"]]],
+["Enlightened",35,"启迪",[["老虎宠物","Tiger pet"]]],
+["Honeygem",33,"蜜宝石",[["蜂蜜喷水器","Honey Sprinkler"],["熊蜂宠物","Bear Bee pet"]]],
+["Ceramic",32,"陶瓷",[["烈日晒干+黏土合并","Sundried+Clay merge"]]],
+["Sunscorched",32,"日灼",[]],
+["Gloom",30,"忧郁阴霾",[["绽放+腐烂合并","Bloom+Rot merge"]]],
+["Oilboil",30,"油沸",[["石油+沸腾合并","Oil+Boil merge"]]],
+["Umbral",30,"本影",[["明亮+瘟疫合并","Bright+Pestilent merge"]]],
+["Glossy",30,"光泽",[["玻璃动物天气","Glass Animals weather"]]],
+["Fierywork",30,"烈火烟花",[]],
+["Firework",26,"烟花",[]],
+["Zombified",25,"僵尸化",[["鸡僵尸宠物","Chicken Zombie pet"]]],
+["Jellygem",25,"果冻宝石",[]],
+["Molten",25,"熔岩",[["火山/末日事件触碰岩浆","Touching Magma in Volcano/Armageddon"],["龙虾忒密多宠物","Lobster Thermidor pet"]]],
+["Flaming",25,"燃烧",[["凤凰宠物","Phoenix pet"]]],
+["Ghostly",25,"幽灵",[["大南瓜事件","Great Pumpkin event"]]],
+["Moonbled",25,"月血",[["骨髓月事件","Marrow Moon event"]]],
+["Volcanic",25,"火山",[["火山天气","Volcano weather"]]],
+["Mirage",25,"幻象",[["狩猎场绿洲+犀牛宠物","Safari Oasis / Rhino pet"]]],
+["Glacial",25,"冰川",[]],
+["Crystalized",25,"结晶",[["蓝宝石金刚鹦鹉宠物","Sapphire Macaw pet"]]],
+["Alienated",25,"异化",[]],
+["Gale",25,"强风",[]],
+["Festive",24,"节日",[["节日限定活动","Seasonal event"]]],
+["Gold",20,"黄金",[["1%随机概率","1% random chance"],["蜻蜓/金蜜蜂/寒鸦宠物","Dragonfly/Cockatrice/Golden Bee pet"],["黄金肥料","Gold Fertilizer"]]],
+["Oldamber",20,"古老琥珀",[["琥珀放置约24小时进化","Amber aged ~24h"]]],
+["Tranquil",20,"宁静",[["禅意光环天气","Zen Aura weather"],["丹顶鹤宠物","Tanchozuru pet"],["收获木灵","Kodama harvest"]]],
+["Corrupt",20,"腐化",[["腐化禅意光环天气","Corrupt Zen Aura weather"],["腐化宠物","Corrupted pets"],["腐化木灵收获","Corrupted Kodama harvest"]]],
+["Eclipsed",20,"日食",[["日食天气","Solar Eclipse weather"]]],
+["Withered",20,"枯萎",[]],
+["Sizzled",18,"嗞嗞作响",[]],
+["Mineral",18,"矿物",[]],
+["Chakra",15,"脉轮",[["九尾狐宠物","Kitsune pet"]]],
+["Corruptchakra",15,"腐化脉轮",[["腐化九尾狐宠物","Corrupted Kitsune pet"]]],
+["Jackpot",15,"头彩",[["金钱雨活动","Money Rain event"]]],
+["Spaghetti",15,"意大利面",[["酱汁+肉丸+意面三种叠加","Sauce+Meatball+Pasta combined"]]],
+["Acidic",15,"酸性",[["酸雨天气","Acid Rain weather"]]],
+["Oil",15,"石油",[["石油雨天气","Oil Rain weather"],["Junkbot宠物","Junkbot pet"]]],
+["Boil",15,"沸腾",[["沸腾雨天气","Boil Rain weather"]]],
+["Gnomed",15,"侏儒",[["侏儒宠物","Gnome pet"]]],
+["Toxic",15,"剧毒",[["寒鸦宠物","Cockatrice pet"]]],
+["Gilded",15,"镀金",[["迈达斯之雨活动","Midas Rain event"]]],
+["Clockwork",15,"发条",[]],
+["Tempestous",12,"暴风",[["风袭+沙质+扭曲合并","Windstruck+Sandy+Twisted merge"]]],
+["Arctic",12,"北极",[]],
+["Frozen",10,"冰冻",[["湿润/浸透+寒意合并","Wet/Drenched+Chilled merge"],["花朵冰霜喷水器","Flower Froster Sprinkler"],["寿司熊/北极熊宠物","Sushi Bear/Polar Bear pet"]]],
+["Cooked",10,"烹饪",[["熟透猫头鹰宠物","Cooked Owl pet"],["烹饪喷雾","Mutation Spray Cooked"]]],
+["Amber",10,"琥珀",[["琥珀喷雾","Mutation Spray Amber"],["猛禽宠物收获时","Raptor pet when harvested"]]],
+["Wilted",10,"凋零",[["干旱天气","Drought weather"]]],
+["Ornamented",10,"装饰",[["节日限定活动","Seasonal event"]]],
+["Cute",10,"可爱",[]],
+["Fried",8,"油炸",[["炸鸡天气事件","Fried Chicken event"],["Fried喷雾","Mutation Spray Fried"]]],
+["Static",8,"静电",[["雷兽宠物吞噬Shocked后","Raiju pet after devouring Shocked"]]],
+["Rot",8,"腐烂",[["曼德拉草宠物收获时","Mandrake pet when harvesting Mandrake"]]],
+["Bloom",8,"绽放",[["Bloom喷雾","Mutation Spray Bloom"],["精灵宠物","Spriggan pet"]]],
+["Spooky",8,"惊悚",[["幽灵熊宠物","Ghost Bear pet"]]],
+["Blight",8,"枯病",[]],
+["Pestilent",8,"瘟疫",[]],
+["Necrotic",8,"坏死",[["幽灵黑暗精灵宠物","Ghostly Dark Spriggan pet"]]],
+["Webbed",8,"蛛网",[["陷阱门蜘蛛宠物","Trapdoor Spider pet"]]],
+["Brewed",7,"酿造",[["巨型大锅管理员事件","Giant Cauldron admin event"]]],
+["Arid",6,"干旱",[["狩猎场干旱/长颈鹿宠物","Safari Drought / Giraffe pet"]]],
+["Charcoal",6,"木炭",[]],
+["Tempered",6,"淬火",[["锻造热潮事件","Smithing Fever event"]]],
+["Eggnog",6,"蛋奶酒",[["节日限定活动","Seasonal event"]]],
+["Whimsical",6,"奇幻",[]],
+["Haze",6,"薄雾",[]],
+["Silver",5,"白银",[["白银肥料","Silver Fertilizer"],["寒鸦宠物","Cockatrice pet"],["水晶光束事件","Crystal Beam event"]]],
+["Plasma",5,"等离子",[["激光/火烈鸟激光风暴","Laser/Flamingo Laser Storm"],["桃色黄蜂宠物","Peach Wasp pet"]]],
+["Honeyglazed",5,"蜂蜜釉",[["蜂蜜喷水器","Honey Sprinkler"],["熊蜂宠物","Bear Bee pet"],["HoneyGlazed喷雾","Mutation Spray HoneyGlazed"]]],
+["Heavenly",5,"天堂",[["漂浮Jandel/漂浮火烈鸟事件","Floating Jandel/Flamingo event"]]],
+["Twisted",5,"扭曲",[["龙卷风天气","Tornado weather"],["翼龙宠物","Pterodactyl pet"]]],
+["Cloudtouched",5,"云触",[["云触喷雾","Mutation Spray Cloudtouched"],["风信子鹦鹉宠物","Hyacinth Macaw pet"]]],
+["Drenched",5,"浸透",[["热带雨/求雨舞/海啸天气","Tropical Rain/Rain Dance/Tsunami weather"]]],
+["Clay",5,"黏土",[["湿润+沙质合并","Wet+Sandy merge"]]],
+["Wildfast",5,"野速",[["化身猎豹时收获作物","Harvest while being a Cheetah"]]],
+["Geode",5,"晶洞",[["宝石喷水器","Gem Sprinkler"],["宝石龟宠物","Geode Turtle pet"]]],
+["Snowtouched",5,"雪触",[]],
+["Opulent",5,"奢华",[]],
+["Bloodlit",4,"血月照耀",[["血月天气","Blood Moon weather"],["卡帕宠物替代湿润","Kappa pet replacing Wet"]]],
+["Burnt",4,"烧焦",[["熟透猫头鹰/红龙宠物","Cooked Owl/Red Dragon pet"],["烧焦喷雾","Mutation Spray Burnt"],["末日天气","Armageddon weather"]]],
+["Verdant",4,"翠绿",[["金刚鹦鹉宠物","Scarlet Macaw pet"],["Verdant喷雾","Mutation Spray Verdant"],["太阳耀斑/日落天气","Solar Flare/Sunset weather"]]],
+["Cracked",4,"龟裂",[["地震天气","Earthquake weather"],["獾宠物","Badger pet"]]],
+["Fall",4,"秋意",[["灰熊宠物","Grizzly Bear pet"],["500分给丰收精灵","500 pts to Harvest Spirit"],["秋日喷泉装饰","Fall Fountain cosmetic"]]],
+["Wiltproof",4,"防枯",[["风信子鹦鹉宠物","Hyacinth Macaw pet"]]],
+["Nocturnal",4,"夜行",[["狩猎场夜行天气","Safari Nocturnal weather"]]],
+["Twilight",4,"暮光",[]],
+["Peppermint",4,"薄荷",[["节日限定活动","Seasonal event"]]],
+["Ash",4,"灰烬",[]],
+["Gummy",4,"软糖",[]],
+["Pollinated",3,"授粉",[["蜂群/工蜂/龙卷蜂事件","Bee Swarm/Worker Bee/Beenado event"],["各类蜜蜂宠物","Bee/Honey Bee/Petal Bee/Queen Bee"],["授粉喷雾","Mutation Spray Pollinated"]]],
+["Sandy",3,"沙质",[["沙尘暴天气","Sandstorm weather"],["跳兔宠物","Jackalope pet"]]],
+["Sauce",3,"番茄酱",[["意面树懒宠物","Spaghetti Sloth pet"]]],
+["Pasta",3,"意面",[["意面树懒宠物","Spaghetti Sloth pet"]]],
+["Meatball",3,"肉丸",[["意面树懒宠物","Spaghetti Sloth pet"]]],
+["Aromatic",3,"芳香",[["烹饪风暴事件","Cooking Storm event"],["芳香宠物碎片","Aromatic Pet Shard"]]],
+["Vamp",3,"吸血鬼",[["蝙蝠攻击事件","Bat Attack event"],["六角蛇宠物","Hex Serpent pet"]]],
+["Lush",3,"郁郁葱葱",[["郁郁喷水器","Lush Sprinkler"]]],
+["Moist",3,"潮湿",[["温柔降雨天气","Gentle Rain weather"]]],
+["Coin",3,"金币",[]],
+["Sleepy",3,"困倦",[]],
+["Luck",3,"幸运草",[]],
+["Heartstuck",3,"心动",[]],
+["Wet",2,"湿润",[["降雨/雷暴/水下天气","Rain/Thunderstorm/Under The Sea weather"],["喷水器","Sprinklers"],["海龟/河童宠物","Sea Turtle/Kappa pet"],["湿润喷雾","Mutation Spray Wet"]]],
+["Chilled",2,"寒意",[["霜冻天气","Frost weather"],["北极熊/寿司熊/狸猫宠物","Polar Bear/Tanuki/Sushi Bear pet"],["寒意喷雾","Mutation Spray Chilled"]]],
+["Choc",2,"巧克力",[["巧克力喷水器","Chocolate Sprinkler"],["巧克力雨天气","Chocolate Rain weather"],["Choc喷雾","Mutation Spray Choc"],["狸猫宠物","Tanuki pet"]]],
+["Moonlit",2,"月光",[["夜晚自动触发(每2分钟最多6株)","Night event, max 6 plants/2min"],["夜杖道具","Night Staff"],["狸猫宠物","Tanuki pet"]]],
+["Windstruck",2,"风袭",[["大风/狂风天气","Windy/Gale weather"],["翼龙宠物","Pterodactyl pet"],["风袭喷雾","Mutation Spray Windstruck"]]],
+["Glimmering",2,"闪烁",[["仙女事件","Fairy event"],["漫游仙女","Roaming Fairies"],["Glimmering喷雾","Mutation Spray Glimmering"],["发光精灵宠物","Glimmering Sprite pet"]]],
+["Snowy",2,"白雪",[]],
+["Fiery",2,"火焰",[]]
+];
+
+const groups=[["全部",""],["A-E","ae"],["F-J","fj"],["K-O","ko"],["P-T","pt"],["U-Z","uz"]];
+const ranges={ae:/^[a-e]/i,fj:/^[f-j]/i,ko:/^[k-o]/i,pt:/^[p-t]/i,uz:/^[u-z]/i};
+let activeGroup="",searchVal="";
 
 function tier(m){
-  if(m>=200)return['t-legend','dot-legend','传奇'];
-  if(m>=100)return['t-rare','dot-rare','稀有'];
-  if(m>=30)return['t-elite','dot-elite','精英'];
-  return['t-normal','dot-normal','普通'];
+  if(m>=200)return['tl','#C07840','传奇'];
+  if(m>=100)return['tr','#D4956A','稀有'];
+  if(m>=30)return['te','#C4A882','精英'];
+  return['tn','#D8C8B8','普通'];
 }
 
-function render(list){
-  const el=document.getElementById('list');
-  const st=document.getElementById('stats');
-  st.textContent=list.length===data.length?`全部 ${data.length} 种变异`:`找到 ${list.length} 种`;
+function render(){
+  const el=document.getElementById('grid'),st=document.getElementById('stats');
+  let list=[...data];
+  if(searchVal)list=list.filter(([n,,cn,srcs])=>{
+    const s=searchVal;
+    return n.toLowerCase().includes(s)||cn.includes(s)||srcs.some(([c,e])=>c.includes(s)||e.toLowerCase().includes(s));
+  });
+  if(activeGroup&&ranges[activeGroup])list=list.filter(([n])=>ranges[activeGroup].test(n));
+  if(activeGroup||searchVal)list.sort((a,b)=>a[0].localeCompare(b[0]));
+  st.textContent=list.length===data.length?`全部 ${data.length} 种（倍率排序）`:`找到 ${list.length} 种（字母排序）`;
   if(!list.length){el.innerHTML='<div class="empty">没有找到匹配的变异</div>';return;}
-  el.innerHTML=list.map(([n,m])=>{
-    const[tc,dc,label]=tier(m);
-    return`<div class="item"><div class="item-left"><span class="dot ${dc}"></span><span class="name">${n}</span><span class="badge ${tc}">${label}</span></div><span class="mult">${m}x</span></div>`;
+  el.innerHTML=list.map(([n,m,cn,srcs])=>{
+    const[tc,dc,lb]=tier(m);
+    const tags=srcs.map(([c,e])=>`<span class="stag">${c}<span class="stag-en">${e}</span></span>`).join('');
+    return`<div class="card"><div class="card-top"><div class="names"><div class="en">${n}</div><div class="cn">${cn}</div></div><div class="mult">${m}x</div></div>${tags?`<div class="card-bot">${tags}</div>`:''}` +'</div>';
   }).join('');
 }
 
-render(data);
+function clearSearch(){
+  document.getElementById('q').value='';
+  searchVal='';
+  document.getElementById('clear-btn').style.display='none';
+  document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('on'));
+  document.querySelector('.fbtn').classList.add('on');
+  render();
+}
+
+const fr=document.getElementById('filters');
+groups.forEach(([label,key])=>{
+  const b=document.createElement('button');
+  b.className='fbtn'+(key===''?' on':'');
+  b.textContent=label;
+  b.onclick=()=>{
+    activeGroup=key;
+    document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    document.getElementById('q').value='';
+    searchVal='';
+    document.getElementById('clear-btn').style.display='none';
+    render();
+  };
+  fr.appendChild(b);
+});
 
 document.getElementById('q').addEventListener('input',function(){
-  const v=this.value.trim().toLowerCase();
-  render(v?data.filter(([n])=>n.toLowerCase().includes(v)):data);
+  searchVal=this.value.trim().toLowerCase();
+  document.getElementById('clear-btn').style.display=searchVal?'block':'none';
+  if(searchVal){activeGroup='';document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('on'));document.querySelector('.fbtn').classList.add('on');}
+  render();
 });
+
+render();
 </script>
 </body>
 </html>
